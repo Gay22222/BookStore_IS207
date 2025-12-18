@@ -1,0 +1,23 @@
+# Env
+.env
+**/.env
+**/.env.*
+!.env.example
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+**/*.log
+
+# Docker volumes 
+pgdata/
+data/
+
+# Local models (
+models/*.gguf
+models/**/*.gguf
+models/*.bin
+models/**/*.bin
