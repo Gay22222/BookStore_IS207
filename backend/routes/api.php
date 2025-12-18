@@ -10,6 +10,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Payment\VnpayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+#Quang seesion add
+use App\Http\Controllers\ChatbotController;
+
+
+
+
 
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -113,3 +119,9 @@ use Illuminate\Support\Facades\Route;
 });
         Route::get('/payments/vnpay/return', [VnpayController::class, 'return']);
         Route::get('/payments/vnpay/ipn', [VnpayController::class, 'ipn']); 
+
+
+
+// Quang add chatbot route
+        Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])
+            ->middleware('throttle:10,1');

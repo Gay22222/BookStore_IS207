@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import NextTopLoader from "nextjs-toploader";
 import FaviconProgress from "./components/layout/Favicon-progress";
+import ChatbotWidget from "./components/chatbot/ChatbotWidget";
 
 export const metadata: Metadata = {
   title: "Bookstore",
@@ -21,6 +22,7 @@ export default async function RootLayout({
         <NextTopLoader showSpinner={false}></NextTopLoader>
         <FaviconProgress></FaviconProgress>
         {children}
+        <ChatbotWidget />
       </body>
     </html>
   );

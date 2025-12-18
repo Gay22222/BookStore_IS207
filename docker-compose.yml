@@ -1,0 +1,79 @@
+services:
+  db:
+    image: postgres:16
+    container_name: bookstore_db
+    environment:
+      POSTGRES_DB: Test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Test12344321
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: bookstore_redis
+    ports:
+      - "6379:6379"
+
+  #  llama.cpp server (LLM local)
+  llama:
+    image: ghcr.io/ggml-org/llama.cpp:full
+    container_name: bookstore_llama
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./models:/models:ro
+    command: >
+      --server -m /models/Llama-3.2-1B-Instruct-Q4_K_M.gguf -c 2048 --host 0.0.0.0 --port 8080 -t 4
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8080/health || curl -fsS http://localhost:8080/v1/models || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bookstore_backend
+    depends_on:
+      - db
+      - redis
+      - llama
+    env_file:
+      - ./backend/.env
+    environment:
+      PORT: "8080"
+      #  backend gọi LLM qua service name trong docker network
+      LLAMA_BASE_URL: "http://llama:8080"
+      CHATBOT_TOP_N: "8"
+      CHATBOT_TIMEOUT: "30"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/var/www/html
+
+  frontend:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    container_name: bookstore_frontend
+    depends_on:
+      - backend
+    environment:
+      # Browser (client) gọi qua localhost
+      NEXT_PUBLIC_BASE_URL: "http://localhost:3001"
+      NEXT_PUBLIC_API_URL: "http://localhost:8080/api"
+
+      # Server-side Next.js (trong container) gọi qua service name
+      API_URL: "http://backend:8080/api"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./web-app:/app
+      - /app/node_modules
+
+volumes:
+  pgdata:

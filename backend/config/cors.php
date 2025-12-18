@@ -15,6 +15,8 @@ return [
     // Hoặc dùng pattern cho subdomain: ['*.your-domain.com']
     'allowed_origins_patterns' => [],
 
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3001')],
+
     'allowed_headers' => ['*'],
     'exposed_headers' => ['Authorization'],
     'max_age' => 0,
