@@ -38,14 +38,36 @@ class ChatbotController extends Controller
         if (!isset($filters['category'])) {
             if (str_contains($lower, 'finance')) {
                 $filters['category'] = 'Finance';
+
             } elseif (str_contains($lower, 'fiction')) {
                 $filters['category'] = 'Fiction';
+
             } elseif (str_contains($lower, 'fantasy')) {
                 $filters['category'] = 'Fantasy';
-            } elseif (str_contains($lower, 'romance')) {
+
+            } elseif (str_contains($lower, 'romance') || str_contains($lower, 'love story')) {
                 $filters['category'] = 'Romance';
+
+            } elseif (str_contains($lower, 'thriller') || str_contains($lower, 'mystery')) {
+                $filters['category'] = 'Thriller';
+
+            } elseif (str_contains($lower, 'memoir') || str_contains($lower, 'autobiography')) {
+                $filters['category'] = 'Memoir';
+
+            } elseif (str_contains($lower, 'historical') || str_contains($lower, 'history')) {
+                $filters['category'] = 'Historical';
+
+            } elseif (str_contains($lower, 'adventure')) {
+                $filters['category'] = 'Adventure';
+
+            } elseif (str_contains($lower, 'sociology') || str_contains($lower, 'society')) {
+                $filters['category'] = 'Sociology';
+
+            } elseif (str_contains($lower, 'satire') || str_contains($lower, 'political satire')) {
+                $filters['category'] = 'Political Satire';
             }
         }
+
 
         /**
          * =====================================================
@@ -60,7 +82,7 @@ class ChatbotController extends Controller
 
         if (count($books) === 0) {
             return response()->json([
-                "answer" => "Currently, we do not have a suitable book for this topic. Please try a different keyword or category.",
+                "answer" => "Currently, we do not have a suitable book for this topic. ",
             ]);
         }
 
