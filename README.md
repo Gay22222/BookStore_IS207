@@ -22,6 +22,7 @@ cd <REPO_FOLDER>
 
 ### Bước 2 — Tải model (LLM)
 ```bash
+mkdir -p models
 cd models
 wget https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf
 ls -lah
