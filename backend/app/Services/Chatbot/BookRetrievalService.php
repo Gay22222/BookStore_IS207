@@ -3,6 +3,7 @@
 namespace App\Services\Chatbot;
 
 use App\Models\Book;
+use Illuminate\Support\Facades\Log;
 
 class BookRetrievalService
 {
@@ -21,19 +22,38 @@ class BookRetrievalService
         $hasAge = isset($filters['readingAge']);
         $hasCategory = !empty($filters['category']);
 
-        $meaningfulKeyword = $this->hasMeaningfulKeyword($lower, $filters);
+        // default
+        $meaningfulKeyword = false;
 
+        // STRATEGY DECISION (HARD RULES)
         if ($strategy === 'AUTO') {
-            // If user mainly asked by price/age/category without a real topic keyword, do FILTER_ONLY
-            if (($hasPrice || $hasAge || $hasCategory) && !$meaningfulKeyword) {
+
+            // HARD RULE 1: If user mentions price OR age -> always FILTER_ONLY
+            // (avoid keyword search with full sentence like "good book under $15")
+            if ($hasPrice || $hasAge) {
                 $strategy = 'FILTER_ONLY';
             } else {
-                $strategy = 'KEYWORD';
+                // only compute meaningfulKeyword when we actually may use KEYWORD strategy
+                $meaningfulKeyword = $this->hasMeaningfulKeyword($lower, $filters);
+
+                // If user only picks a category without a real topic keyword -> FILTER_ONLY
+                if ($hasCategory && !$meaningfulKeyword) {
+                    $strategy = 'FILTER_ONLY';
+                } else {
+                    $strategy = 'KEYWORD';
+                }
+            }
+        } else {
+            // If strategy is forced from outside, still compute keyword for KEYWORD mode
+            if ($strategy === 'KEYWORD') {
+                $meaningfulKeyword = $this->hasMeaningfulKeyword($lower, $filters);
             }
         }
 
+
         // Tiered fallback policy: keep PRICE first, then CATEGORY, then AGE
         $tiers = $this->buildFallbackTiers($filters);
+        
 
         foreach ($tiers as $tierFilters) {
             $q = Book::query();
