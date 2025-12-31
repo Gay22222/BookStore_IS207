@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 const navStatistic = [{ label: "Statistics", href: "/admin" }];
 
@@ -14,46 +15,73 @@ const navItems = [
   { label: "Orders", href: "/admin/manage-orders" },
 ];
 
-export default function NavAdmin() {
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function NavAdmin({ open, onClose }: Props) {
   const pathname = usePathname();
 
-  return (
-    <aside className="w-64 h-screen px-4 py-8 bg-gradient-to-b from-purple-100 via-rose-100 to-white border-r border-gray-200 flex flex-col transition-all duration-300">
-      <h2 className="text-2xl font-bold text-purple-700 mb-8">RGBunny</h2>
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
-      {/* Main Navigation */}
-      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-        ANALYTICS
-      </h3>
-      <nav className="flex flex-col space-y-1">
-        {navStatistic.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-              pathname === item.href
-                ? "bg-purple-200 text-purple-800 shadow-sm"
-                : "text-gray-700 hover:bg-purple-50"
-            )}
+  return (
+    <>
+      {/* Overlay mobile */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/30 transition-opacity md:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={cn(
+          `
+          z-50 h-dvh w-72 md:w-64
+          bg-gradient-to-b from-purple-100 via-rose-100 to-white
+          border-r border-gray-200
+          px-4 py-6
+          flex flex-col
+          transition-transform duration-300
+
+          fixed left-0 top-0 md:sticky md:top-0
+          md:translate-x-0
+        `,
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        {/* Brand + close (mobile) */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-purple-700">WKangaroo</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="md:hidden rounded-lg border border-gray-200 bg-white p-2 shadow-sm"
+            aria-label="Close sidebar"
           >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      <div className="mb-6">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          SALES
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Analytics */}
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          ANALYTICS
         </h3>
-        <nav className="flex flex-col space-y-1">
-          {navItems.map((item) => (
+        <nav className="flex flex-col space-y-1 mb-5">
+          {navStatistic.map((item) => (
             <Link
+              prefetch={false}
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={cn(
-                "px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                pathname === item.href
-                  ? "bg-purple-200 text-purple-800 shadow-sm"
+                "px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                isActive(item.href)
+                  ? "bg-purple-200 text-purple-900 shadow-sm"
                   : "text-gray-700 hover:bg-purple-50"
               )}
             >
@@ -61,20 +89,29 @@ export default function NavAdmin() {
             </Link>
           ))}
         </nav>
-      </div>
 
-      {/* CTA / Footer */}
-      <div className="mt-auto bg-gradient-to-r from-rose-100 to-purple-100 rounded-xl p-4 border border-purple-200">
-        <h3 className="text-sm font-semibold text-gray-800 mb-1">
-          Upgrade Pro
+        {/* Sales */}
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          SALES
         </h3>
-        <p className="text-xs text-gray-500 mb-3">
-          Unlock premium features with Pro
-        </p>
-        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
-          Upgrade $50
-        </button>
-      </div>
-    </aside>
+        <nav className="flex flex-col space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onClose}
+              className={cn(
+                "px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                isActive(item.href)
+                  ? "bg-purple-200 text-purple-900 shadow-sm"
+                  : "text-gray-700 hover:bg-purple-50"
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }

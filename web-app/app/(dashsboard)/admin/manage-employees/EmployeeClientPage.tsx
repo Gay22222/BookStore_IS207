@@ -2,16 +2,36 @@
 
 import { useState } from "react";
 import UserTable from "@/app/components/ui/UserTable";
-import { UserResponseForAdmin } from "@/app/(user)/models/UserResponseForAdmin";
+import type { UserResponseForAdmin } from "@/app/(user)/models/UserResponseForAdmin";
 import { searchEmployees } from "@/app/(user)/actions/userAction";
 import SearchBar from "@/app/components/ui/SearchBarReusable";
+import type { AdminUser } from "@/app/(user)/actions/adminApi";
+
+function roleToString(role: any): string {
+  if (typeof role === "string") return role;
+  if (!role) return "";
+  return (
+    role.name ?? role.roleName ?? role.code ?? role.slug ?? role.title ?? ""
+  );
+}
+
+function toAdminUser(u: UserResponseForAdmin): AdminUser {
+  return {
+    id: u.id,
+    userName: u.userName,
+    email: u.email,
+    roles: (u.roles ?? []).map(roleToString).filter(Boolean),
+  };
+}
 
 export default function EmployeesClientPage({
   initialUsers,
 }: {
   initialUsers: UserResponseForAdmin[];
 }) {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<AdminUser[]>(
+    initialUsers.map(toAdminUser)
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,14 +41,15 @@ export default function EmployeesClientPage({
 
     try {
       const res = await searchEmployees(term);
-      if ("error" in res) {
-        setError(res.error.message);
+
+      if ("error" in (res as any)) {
+        setError((res as any).error.message);
         setUsers([]);
       } else {
-        setUsers(res);
+        setUsers((res as UserResponseForAdmin[]).map(toAdminUser));
       }
     } catch (err) {
-      setError("Something went wrong." + err);
+      setError("Something went wrong." + String(err));
     } finally {
       setLoading(false);
     }

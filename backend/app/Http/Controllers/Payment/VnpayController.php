@@ -178,6 +178,7 @@ class VnpayController extends Controller
                 "vnp_OrderType"  => $vnp_OrderType,
                 "vnp_ReturnUrl"  => $vnp_ReturnUrl,
                 "vnp_TxnRef"     => $vnp_TxnRef,
+                // "vnp_BankCode"   => "VNPAYQR",
             ];
 
             Log::info('VNPAY_CREATE_INPUT_DATA_BEFORE_SORT', [

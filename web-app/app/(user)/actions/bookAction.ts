@@ -20,7 +20,7 @@ export const getBookById = async (id: number): Promise<GetBookResponse> => {
 };
 
 export const deleteBook = async (id: number) => {
-  return await fetchWrapper.del(`/books?id=${id}`);
+  return await fetchWrapper.del(`/manage/books?id=${id}`);
 };
 
 export const searchBooks = async (searchTerm: string) => {

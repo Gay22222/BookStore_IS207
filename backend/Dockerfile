@@ -30,10 +30,22 @@ RUN a2enmod rewrite headers \
 # Apache DocumentRoot -> public/
 # 
 # ------------------------------------------------------------
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf \
- && sed -ri -e 's!<Directory /var/www/>!<Directory ${APACHE_DOCUMENT_ROOT}>!g' /etc/apache2/apache2.conf \
- && sed -ri -e 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf
+RUN printf '%s\n' \
+'<VirtualHost *:80>' \
+'    ServerName localhost' \
+'    DocumentRoot /var/www/html/public' \
+'' \
+'    <Directory /var/www/html/public>' \
+'        Options Indexes FollowSymLinks' \
+'        AllowOverride All' \
+'        Require all granted' \
+'    </Directory>' \
+'' \
+'    ErrorLog ${APACHE_LOG_DIR}/error.log' \
+'    CustomLog ${APACHE_LOG_DIR}/access.log combined' \
+'</VirtualHost>' \
+> /etc/apache2/sites-available/000-default.conf
+
 
 # ------------------------------------------------------------
 # Working directory

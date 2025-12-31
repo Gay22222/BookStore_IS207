@@ -64,6 +64,11 @@ class OrderController extends Controller
                 $order->order_status = 'ACCEPTED';
                 $order->save();
 
+                if (empty($order->order_code)) {
+    $order->order_code = $this->generateOrderCode($order->id);
+    $order->save();
+}
+
                 $itemsPayload = [];
                 foreach ($cart->cartItems as $ci) {
                     $book = $ci->book;
@@ -288,4 +293,17 @@ class OrderController extends Controller
             'errors'  => $errors,
         ], $status);
     }
+
+    private function generateOrderCode(int $orderId): string
+{
+    do {
+        $code = 'ORD' . now()->format('Ymd')
+            . '-' . str_pad((string)$orderId, 8, '0', STR_PAD_LEFT)
+            . '-' . strtoupper(Str::random(4));
+    } while (Order::where('order_code', $code)->exists());
+
+    return $code;
 }
+}
+
+    

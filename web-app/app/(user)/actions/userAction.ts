@@ -1,6 +1,14 @@
 "use server";
 import { fetchWrapper } from "@/lib/fetchWrapper";
 import { FieldValues } from "react-hook-form";
+import { cookies } from "next/headers";
+
+type ApiError = { error: { status: string; message: string } };
+
+type ChangePasswordResponse = {
+  message: string;
+  jwtToken?: string; // nếu backend rotate token
+};
 
 export const updateMe = async (data: FieldValues) => {
   return await fetchWrapper.patch(`/user/me`, data);
@@ -34,4 +42,34 @@ export const searchEmployees = async (searchTerm: string) => {
   return await fetchWrapper.get(
     `/manage/search/employees?searchTerm=${searchTerm}`
   );
+};
+
+export const changePassword = async (
+  oldPassword: string,
+  newPassword: string,
+  newPasswordConfirmation: string
+): Promise<ChangePasswordResponse | ApiError> => {
+  const res = await fetchWrapper.post("/auth/change-password", {
+    oldPassword,
+    newPassword,
+    newPassword_confirmation: newPasswordConfirmation,
+  });
+
+  if (
+    res &&
+    typeof res === "object" &&
+    !("error" in res) &&
+    "jwtToken" in res &&
+    typeof (res as any).jwtToken === "string" &&
+    (res as any).jwtToken.length > 0
+  ) {
+    (await cookies()).set("jwtToken", (res as any).jwtToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+  }
+
+  return res as any;
 };

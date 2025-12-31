@@ -10,6 +10,8 @@ use Illuminate\Database\QueryException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
@@ -165,6 +167,44 @@ class AuthController extends Controller
             return $this->errorResponse(500, 'Server error', ['server' => [$e->getMessage()]]);
         }
     }
+
+    public function changePassword(Request $request)
+{
+    try {
+        $authUser = auth('api')->user();
+        if (!$authUser) {
+            return $this->errorResponse(401, 'Unauthenticated', ['auth' => ['Token is missing or invalid.']]);
+        }
+
+        $data = $request->validate([
+            'oldPassword' => ['required', 'string'],
+            'newPassword' => ['required', 'string', 'min:6', 'max:100', 'different:oldPassword', 'confirmed'],
+        ]);
+
+        // luôn lấy Eloquent model thật từ DB
+        $user = User::query()->findOrFail($authUser->id);
+
+        if (!Hash::check($data['oldPassword'], $user->password)) {
+            return $this->errorResponse(400, 'Old password is incorrect', [
+                'oldPassword' => ['Old password is incorrect.'],
+            ]);
+        }
+
+        DB::transaction(function () use ($user, $data) {
+            // Với model của bạn có cast 'password' => 'hashed' nên gán plain ok
+            $user->password = $data['newPassword'];
+            $user->save();
+        });
+
+        return response()->json(['message' => 'Password changed successfully'], 200);
+    } catch (ValidationException $e) {
+        return $this->errorResponse(422, 'Validation failed', $e->errors());
+    } catch (QueryException $e) {
+        return $this->errorResponse(500, 'Database error', ['database' => [$e->getMessage()]]);
+    } catch (Exception $e) {
+        return $this->errorResponse(500, 'Server error', ['server' => [$e->getMessage()]]);
+    }
+}
 
     private function normalizeRoles($raw)
     {

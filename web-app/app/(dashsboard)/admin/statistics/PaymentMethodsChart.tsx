@@ -1,22 +1,27 @@
 "use client";
 
-import { PieChart, Pie, Tooltip, Cell, Legend } from "recharts";
-import type { Order } from "@/app/(user)/models/Order";
+import {
+  PieChart,
+  Pie,
+  Tooltip,
+  Cell,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import type { AdminOrder } from "@/app/(user)/actions/adminApi";
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50"];
 
 type Props = {
-  orders: Order[];
+  orders: AdminOrder[];
 };
 
 export default function PaymentMethodsChart({ orders }: Props) {
   const methodMap: Record<string, number> = {};
 
   orders.forEach((order) => {
-    // payment có thể null, nên phải check
     const rawMethod = order.payment?.paymentMethod ?? "UNKNOWN";
-    const method = rawMethod.toUpperCase();
-
+    const method = String(rawMethod).toUpperCase();
     methodMap[method] = (methodMap[method] || 0) + 1;
   });
 
@@ -37,22 +42,26 @@ export default function PaymentMethodsChart({ orders }: Props) {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">Payment Methods</h2>
-      <PieChart width={600} height={300}>
-        <Pie
-          data={chartData}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-        >
-          {chartData.map((_, index) => (
-            <Cell key={index} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
+      <div className="w-full h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+            >
+              {chartData.map((_, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

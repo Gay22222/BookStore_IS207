@@ -1,18 +1,18 @@
 "use server";
-import React from "react";
-import { getAllEmployees } from "@/app/(user)/actions/userAction";
-import EmployeesClientPage from "./EmployeeClientPage";
 
-export default async function UsersPage() {
-  const users = await getAllEmployees();
+import { getAllEmployees } from "@/app/(user)/actions/adminApi";
+import UserClientPage from "../manage-users/UsersClientPage";
+
+export default async function ManageEmployeesPage() {
+  const res = await getAllEmployees();
+  const users = "error" in (res as any) ? [] : (res as any);
 
   return (
-    <section className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">All Users</h1>
-      </div>
-
-      <EmployeesClientPage initialUsers={users} />
+    <section className="w-full max-w-7xl mx-auto space-y-4">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        Employees
+      </h1>
+      <UserClientPage initialUsers={users} variant="employees" />
     </section>
   );
 }

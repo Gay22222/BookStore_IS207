@@ -1,19 +1,16 @@
 "use server";
 
-import { getAllOrders } from "@/app/(user)/actions/orderActions";
-import OrderTable from "@/app/components/ui/OrderTable";
-import React from "react";
+import { getAllOrders } from "@/app/(user)/actions/adminApi";
+import OrderClientPage from "./OrderClientPage";
 
-export default async function OrdersPage() {
-  const orders = await getAllOrders();
+export default async function ManageOrdersPage() {
+  const res = await getAllOrders();
+  const orders = "error" in (res as any) ? [] : (res as any);
 
   return (
-    <section className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">All Orders</h1>
-      </div>
-
-      <OrderTable orders={orders} />
+    <section className="w-full max-w-7xl mx-auto space-y-4">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders</h1>
+      <OrderClientPage initialOrders={orders} />
     </section>
   );
 }

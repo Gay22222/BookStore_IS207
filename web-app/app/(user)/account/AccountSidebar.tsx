@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Profile Information", href: "/account/profile" },
   { label: "Address Information", href: "/account/addresses" },
-  { label: "Change Password", href: "/account/reset-password" },
+  { label: "Change Password", href: "/account/change-password" },
 ];
 
 export default function AccountSidebar({

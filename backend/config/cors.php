@@ -10,12 +10,10 @@ return [
     // Một domain:
     // 'allowed_origins' => [env('FRONTEND_URL', 'https://example.com')],
     // Nhiều domain (phân tách bởi dấu phẩy):
-    'allowed_origins' => array_map('trim', explode(',', env('FRONTEND_URLS', env('FRONTEND_URL', '')))),
+    'allowed_origins' => array_map('trim', explode(',', env('APP_FRONTEND', env('APP_FRONTEND', '')))),
 
     // Hoặc dùng pattern cho subdomain: ['*.your-domain.com']
     'allowed_origins_patterns' => [],
-
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3001')],
 
     'allowed_headers' => ['*'],
     'exposed_headers' => ['Authorization'],
